@@ -5,45 +5,54 @@ local opts = { noremap = true, silent = true }
 vim.g.mapleader = " "
 
 -- quality of life
-map("n", "<leader>w", "<cmd>w<cr>", opts)
-map("n", "<leader>q", "<cmd>q<cr>", opts)
-map("n", "<leader>h", "<cmd>nohlsearch<cr>", opts)
+map("n", "<leader>w", "<cmd>w<cr>", { noremap = true, silent = true, desc = "save file" })
+map("n", "<leader>qq", "<cmd>q<cr>", { noremap = true, silent = true, desc = "quit" })
+map("n", "<leader>qb", ":bp | bd #<CR>", { noremap = true, silent = true, desc = "remove current buffer" })
+map("n", "<leader>h", "<cmd>nohlsearch<cr>", { noremap = true, silent = true, desc = "clear search" })
 
--- window navigation (keep these if you like them)
-map("n", "<C-h>", "<C-w>h", opts)
-map("n", "<C-j>", "<C-w>j", opts)
-map("n", "<C-k>", "<C-w>k", opts)
-map("n", "<C-l>", "<C-w>l", opts)
 
+vim.keymap.set("n", "<leader>ff", function()
+  require("telescope.builtin").find_files()
+end, { desc = "Find files" })
+
+vim.keymap.set("n", "<leader>fg", function()
+  require("telescope.builtin").live_grep()
+end, { desc = "Live grep" })
+
+vim.keymap.set("n", "<leader>fF", function()
+  require("telescope.builtin").git_files()
+end, { desc = "Git files" })
+
+vim.keymap.set("n", "<leader>fp", "<cmd>Telescope projects<cr>", { desc = "Projects" })
+vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Buffers" })
+vim.keymap.set("n", "<C-h>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<C-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+
+vim.keymap.set("n", "<leader>s", function()
+  require("snipe").open_buffer_menu()
+end, { desc = "Snipe: Open buffer menu" })
 
 vim.keymap.set("n", "<leader>y", function()
-  local tmp = vim.fn.tempname()
-
-  vim.cmd("terminal yazi --chooser-file " .. tmp)
-  vim.cmd("startinsert")
-
-  vim.api.nvim_create_autocmd("TermClose", {
-    buffer = 0,
-    once = true,
-    callback = function()
-      local f = io.open(tmp, "r")
-      if not f then return end
-
-      local path = f:read("*l")
-      f:close()
-
-      if not path or path == "" then
-        return
-      end
-
-      -- schedule the file opening so Neovim treats it normally
-      vim.schedule(function()
-        -- update working directory
-        vim.cmd("cd " .. vim.fn.fnamemodify(path, ":h"))
-
-        -- open file normally (this triggers filetype + Treesitter automatically)
-        vim.cmd("edit " .. path)
-      end)
-    end,
-  })
+  require("modules.yazi").open_picker()
 end, { desc = "Open Yazi file picker" })
+
+vim.keymap.set("i", "<C-j>", function()
+  return vim.fn.pumvisible() == 1 and "<C-n>" or "<C-j>"
+end, { expr = true })
+
+vim.keymap.set("i", "<C-k>", function()
+  return vim.fn.pumvisible() == 1 and "<C-p>" or "<C-k>"
+end, { expr = true })
+
+vim.keymap.set({ "n", "v" }, "c", '"_c')
+
+vim.keymap.set("n", "<C-z>", "<Nop>")
+vim.keymap.set("i", "<C-z>", "<Nop>")
+vim.keymap.set("v", "<C-z>", "<Nop>")
+
+vim.keymap.set("n", "<leader>rr", function()
+  local file = vim.fn.expand("%:p")
+  package.loaded[file] = nil
+  vim.cmd("luafile " .. file)
+  print("Reloaded " .. file)
+end, { desc = "Reload current config file" })
