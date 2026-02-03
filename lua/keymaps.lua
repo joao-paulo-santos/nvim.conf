@@ -1,8 +1,10 @@
 local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
 
 -- leader
 vim.g.mapleader = " "
+
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { silent = true, desc = "Move selection down" })
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { silent = true, desc = "Move selection up" })
 
 -- quality of life
 map("n", "<leader>w", "<cmd>w<cr>", { noremap = true, silent = true, desc = "save file" })

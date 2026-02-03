@@ -27,13 +27,25 @@ function M.setup_session_restore()
     group = group,
     callback = function()
       -- Only restore if we didn't start nvim with any file arguments
-vim.schedule(function()
+      vim.schedule(function()
         if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
           require("persistence").load()
         end
-      end)     
+      end)
     end,
     nested = true, -- important to allow other autocmds (like LSP) to fire after load
+  })
+
+  vim.api.nvim_create_autocmd("User", {
+    pattern = { "PersistedLoadPost", "PersistenceLoadPost" }, -- Covers both plugins
+    group = group,
+    callback = function()
+      -- The discussion suggests a small delay is necessary
+      vim.defer_fn(function()
+        vim.cmd("normal! zx") -- Recompute folds
+        vim.cmd("normal! zR") -- Open all folds (optional, if you want them open)
+      end, 100)
+    end,
   })
 end
 

@@ -14,7 +14,13 @@ return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.config").setup({
+      require("nvim-treesitter").setup({
+        ensure_installed = {
+          "go", "python", "c", "cpp", "rust",
+          "javascript", "typescript", "html", "css",
+          "bash", "json", "lua", "vim", "vimdoc"
+        },
+        auto_install = true,
         highlight = { enable = true },
         indent = { enable = true },
       })
@@ -28,10 +34,28 @@ return {
     end,
   },
   {
+    'DrKJeff16/project.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    main = "project_nvim",
+    opts = {
+      detection_methods = { "lsp", "pattern" },
+      patterns = { ".git", "package.json" },
+    },
+  },
+  {
     "nvim-telescope/telescope.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "DrKJeff16/project.nvim"
+    },
     config = function()
-      require("telescope").setup({
+      require("project_nvim").setup({
+        -- your project settings
+      })
+      local telescope = require("telescope")
+      telescope.setup({
         pickers = {
           buffers = {
             mappings = {
@@ -40,10 +64,24 @@ return {
           },
         },
       })
-      local ok, _ = pcall(require("telescope").load_extension, "projects")
-      if not ok then
-        require("telescope").load_extension("project_nvim")
-      end
+      pcall(telescope.load_extension, "projects")
+    end,
+  },
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = "kevinhwang91/promise-async",
+    config = function()
+      -- Settings for UFO
+      vim.o.foldcolumn = '1'
+      vim.o.foldlevel = 99
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
+
+      require('ufo').setup({
+        provider_selector = function(bufnr, filetype, buftype)
+          return { 'treesitter', 'indent' }
+        end
+      })
     end,
   },
   {
