@@ -40,10 +40,21 @@ return {
           },
         },
       })
+      local ok, _ = pcall(require("telescope").load_extension, "projects")
+      if not ok then
+        require("telescope").load_extension("project_nvim")
+      end
     end,
   },
   {
     "mason-org/mason.nvim",
     opts = {}
+  },
+  {
+    "chentoast/marks.nvim",
+    event = "VeryLazy",
+    opts = {
+      builtin_marks = {},
+    },
   },
 }
