@@ -58,3 +58,16 @@ vim.keymap.set("n", "<leader>rr", function()
   vim.cmd("luafile " .. file)
   print("Reloaded " .. file)
 end, { desc = "Reload current config file" })
+
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+
+local themes = { "catppuccin", "vscode", "tokyonight", "rose-pine" }
+local current = 1
+
+vim.keymap.set("n", "<leader>tt", function()
+  current = current % #themes + 1
+  vim.cmd.colorscheme(themes[current])
+  print("Theme: " .. themes[current])
+end)
