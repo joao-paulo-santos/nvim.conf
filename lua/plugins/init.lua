@@ -1,17 +1,8 @@
 return {
   { "nvim-lua/plenary.nvim" },
-
-  {
-    "folke/tokyonight.nvim",
-    opts = { transparent = true, },
-    lazy = false,
-    priority = 1000,
-    config = function(_, opts)
-      vim.cmd.colorscheme("tokyonight")
-    end
-  },
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter").setup({
@@ -24,6 +15,21 @@ return {
         highlight = { enable = true },
         indent = { enable = true },
       })
+      require('nvim-treesitter').install({ 'rust', 'javascript', 'zig' }):wait(300000) -- wait max. 5 minutes
+    end,
+  },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    opts = {
+      integrations = {
+        treesitter = true,
+      },
+    },
+    config = function(_, opts)
+      require("catppuccin").setup(opts)
+      vim.cmd.colorscheme("catppuccin")
     end,
   },
   {
@@ -35,14 +41,12 @@ return {
   },
   {
     'DrKJeff16/project.nvim',
-    dependencies = {
+    dependencies = { -- OPTIONAL
       'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope.nvim',
+      'ibhagwan/fzf-lua',
     },
-    main = "project_nvim",
-    opts = {
-      detection_methods = { "lsp", "pattern" },
-      patterns = { ".git", "package.json" },
-    },
+    opts = {},
   },
   {
     "nvim-telescope/telescope.nvim",
@@ -51,9 +55,7 @@ return {
       "DrKJeff16/project.nvim"
     },
     config = function()
-      require("project_nvim").setup({
-        -- your project settings
-      })
+      require('project').setup()
       local telescope = require("telescope")
       telescope.setup({
         pickers = {

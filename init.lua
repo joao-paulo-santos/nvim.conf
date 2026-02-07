@@ -62,3 +62,13 @@ require("noice").setup({
 local autocmds = require("autocmds")
 autocmds.setup_yank_highlight()
 autocmds.setup_session_restore()
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { '*' },
+  callback = function()
+    -- remove error = false when nvim 0.12+ is default
+    if vim.treesitter.get_parser(nil, nil, { error = false }) then
+      vim.treesitter.start()
+    end
+  end,
+})
